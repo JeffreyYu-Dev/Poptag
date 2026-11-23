@@ -3,45 +3,240 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>SpacetimeDB Browser App</title>
+    <title>Poptag lobby test</title>
+    <style>
+      body {
+        font-family:
+          system-ui,
+          -apple-system,
+          sans-serif;
+        margin: 0;
+        padding: 1.5rem;
+        background: #f6f6f4;
+        color: #222;
+        font-size: 14px;
+      }
+      h1 {
+        font-size: 1.2rem;
+        margin: 0 0 0.25rem;
+      }
+      h2 {
+        font-size: 0.95rem;
+        margin: 0 0 0.75rem;
+      }
+      .bar {
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+        flex-wrap: wrap;
+        color: #555;
+        margin-bottom: 1rem;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+        gap: 1rem;
+      }
+      section {
+        background: #fff;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        padding: 1rem;
+      }
+      .row {
+        display: flex;
+        gap: 0.5rem;
+        margin-bottom: 0.5rem;
+        flex-wrap: wrap;
+      }
+      input {
+        padding: 0.4rem 0.5rem;
+        border: 1px solid #bbb;
+        border-radius: 4px;
+        font: inherit;
+      }
+      button {
+        padding: 0.4rem 0.75rem;
+        border: 1px solid #888;
+        border-radius: 4px;
+        background: #fff;
+        font: inherit;
+        cursor: pointer;
+      }
+      button:hover:not(:disabled) {
+        background: #eee;
+      }
+      button:disabled {
+        opacity: 0.4;
+        cursor: default;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+      th,
+      td {
+        text-align: left;
+        padding: 0.3rem 0.4rem;
+        border-bottom: 1px solid #eee;
+      }
+      th {
+        color: #666;
+        font-weight: 500;
+      }
+      .me {
+        background: #fff8dc;
+      }
+      .muted {
+        color: #888;
+      }
+      .code {
+        font-family: ui-monospace, monospace;
+        font-size: 1.4rem;
+        letter-spacing: 0.15em;
+      }
+      .mono {
+        font-family: ui-monospace, monospace;
+        font-size: 12px;
+      }
+      #log {
+        font-family: ui-monospace, monospace;
+        font-size: 12px;
+        max-height: 260px;
+        overflow-y: auto;
+        margin: 0;
+        padding: 0;
+        list-style: none;
+      }
+      #log li {
+        padding: 0.15rem 0;
+        border-bottom: 1px solid #f2f2f2;
+      }
+      .err {
+        color: #b00020;
+      }
+      .ok {
+        color: #1b6e2e;
+      }
+      #status.on {
+        color: #1b6e2e;
+      }
+      #status.off {
+        color: #b00020;
+      }
+    </style>
   </head>
-  <body
-    style="
-      font-family:
-        system-ui,
-        -apple-system,
-        sans-serif;
-      padding: 2rem;
-      max-width: 600px;
-      margin: 0 auto;
-    "
-  >
-    <h1>SpacetimeDB Browser App</h1>
-
-    <div style="margin-bottom: 1rem">
-      Status: <strong id="status" style="color: red">Disconnected</strong>
-    </div>
-
-    <form id="add-form" style="margin-bottom: 2rem">
-      <input
-        type="text"
-        id="name-input"
-        placeholder="Enter name"
-        style="padding: 0.5rem; margin-right: 0.5rem"
-        disabled
-      />
-      <button type="submit" id="add-btn" style="padding: 0.5rem 1rem" disabled>
-        Add Person
+  <body>
+    <h1>Poptag lobby test</h1>
+    <div class="bar">
+      <span>Status: <strong id="status" class="off">connecting…</strong></span>
+      <span>DB: <span id="target" class="mono"></span></span>
+      <span>You: <span id="me" class="mono">-</span></span>
+      <button id="disconnect">Disconnect</button>
+      <button id="reconnect">Reconnect</button>
+      <button
+        id="new-identity"
+        title="Forget this tab's token and become a new player"
+      >
+        New identity
       </button>
-    </form>
-
-    <div>
-      <h2>People (<span id="count">0</span>)</h2>
-      <ul id="people-list">
-        <li style="color: #888">No people yet. Add someone above!</li>
-      </ul>
     </div>
-    <script type="module" src="/src/main.ts"></script>
-    <div id="game"></div>
+    <p class="muted" style="margin-top: 0">
+      Each browser tab is a separate player. Open more tabs to test with several
+      players.
+    </p>
+
+    <div class="grid">
+      <section>
+        <h2>Lobby</h2>
+        <div id="no-lobby">
+          <div class="row">
+            <input id="username" placeholder="Username" maxlength="20" />
+          </div>
+          <div class="row">
+            <button id="create">Create lobby</button>
+          </div>
+          <div class="row">
+            <input
+              id="code"
+              placeholder="Code"
+              maxlength="4"
+              size="6"
+              style="text-transform: uppercase"
+            />
+            <button id="join">Join lobby</button>
+          </div>
+        </div>
+        <div id="in-lobby" hidden>
+          <div class="row" style="align-items: baseline">
+            Code: <span id="lobby-code" class="code"></span>
+          </div>
+          <div class="row">
+            <button id="ready">Toggle ready</button>
+            <button id="start">Start game</button>
+            <button id="leave">Leave lobby</button>
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Ready</th>
+                <th>Host</th>
+                <th>Online</th>
+                <th>Joined</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="members"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section>
+        <h2>Game</h2>
+        <div id="no-game" class="muted">Not in a game.</div>
+        <div id="in-game" hidden>
+          <div class="row">
+            Game #<span id="game-id"></span>, started
+            <span id="game-started"></span>
+          </div>
+          <div class="row">
+            <button id="move">Move to random spot</button>
+            <button id="end">End game (host)</button>
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>Player</th>
+                <th>x</th>
+                <th>y</th>
+              </tr>
+            </thead>
+            <tbody id="game-players"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section>
+        <h2>Active games (public)</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Game</th>
+              <th>Players</th>
+              <th>Started</th>
+            </tr>
+          </thead>
+          <tbody id="active-games"></tbody>
+        </table>
+      </section>
+
+      <section>
+        <h2>Log</h2>
+        <ul id="log"></ul>
+      </section>
+    </div>
+
+    <script type="module" src="./src/main.ts"></script>
   </body>
 </html>

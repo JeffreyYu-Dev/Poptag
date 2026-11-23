@@ -6,13 +6,21 @@
 import { type Infer as __Infer } from "spacetimedb";
 
 // Import all reducer arg schemas
-import AddReducer from "../add_reducer";
-import JoinReducer from "../join_reducer";
+import CreateLobbyReducer from "../create_lobby_reducer";
+import EndGameEarlyReducer from "../end_game_early_reducer";
+import JoinLobbyReducer from "../join_lobby_reducer";
+import KickPlayerReducer from "../kick_player_reducer";
+import LeaveLobbyReducer from "../leave_lobby_reducer";
 import MovePlayerReducer from "../move_player_reducer";
-import SayHelloReducer from "../say_hello_reducer";
+import StartGameReducer from "../start_game_reducer";
+import ToggleReadyReducer from "../toggle_ready_reducer";
 
-export type AddParams = __Infer<typeof AddReducer>;
-export type JoinParams = __Infer<typeof JoinReducer>;
+export type CreateLobbyParams = __Infer<typeof CreateLobbyReducer>;
+export type EndGameEarlyParams = __Infer<typeof EndGameEarlyReducer>;
+export type JoinLobbyParams = __Infer<typeof JoinLobbyReducer>;
+export type KickPlayerParams = __Infer<typeof KickPlayerReducer>;
+export type LeaveLobbyParams = __Infer<typeof LeaveLobbyReducer>;
 export type MovePlayerParams = __Infer<typeof MovePlayerReducer>;
-export type SayHelloParams = __Infer<typeof SayHelloReducer>;
+export type StartGameParams = __Infer<typeof StartGameReducer>;
+export type ToggleReadyParams = __Infer<typeof ToggleReadyReducer>;
 
