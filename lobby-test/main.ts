@@ -1,13 +1,22 @@
 // Test page for the lobby/game module. Not part of the real client.
 //
-// Connects to a local server by default. Override with URL params, e.g.
-//   /lobby-test/?host=https://maincloud.spacetimedb.com&db=poptag
+// Connects to the cloud database from .env (VITE_SPACETIMEDB_HOST /
+// VITE_SPACETIMEDB_DB_NAME) by default. Override with URL params:
+//   /lobby-test/?local                      -> ws://localhost:3000, poptag-test
+//   /lobby-test/?host=ws://...&db=some-db   -> anything else
 import type { Identity } from "spacetimedb";
 import { DbConnection, tables } from "./module_bindings";
 
 const params = new URLSearchParams(location.search);
-const HOST = params.get("host") ?? "ws://localhost:3000";
-const DB = params.get("db") ?? "poptag-test";
+const LOCAL = params.has("local");
+const HOST =
+  params.get("host") ??
+  (LOCAL
+    ? "ws://localhost:3000"
+    : (import.meta.env.VITE_SPACETIMEDB_HOST ?? "https://maincloud.spacetimedb.com"));
+const DB =
+  params.get("db") ??
+  (LOCAL ? "poptag-test" : (import.meta.env.VITE_SPACETIMEDB_DB_NAME ?? "poptag"));
 
 // sessionStorage, not localStorage: each tab gets its own identity (so each
 // tab is a separate player), but a refresh keeps the same one.

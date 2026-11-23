@@ -1,13 +1,25 @@
 // Test page for the lobby/game module. Not part of the real client.
 //
-// Connects to a local server by default. Override with URL params, e.g.
-//   /lobby-test/?host=https://maincloud.spacetimedb.com&db=poptag
+// Connects to the cloud database from .env (VITE_SPACETIMEDB_HOST /
+// VITE_SPACETIMEDB_DB_NAME) by default. Override with URL params:
+//   ?local                      -> ws://localhost:3000, poptag-test
+//   ?host=ws://...&db=some-db   -> anything else
 import type { Identity } from "spacetimedb";
 import { DbConnection, tables } from "./module_bindings";
 
 const params = new URLSearchParams(location.search);
-const HOST = params.get("host") ?? "ws://localhost:3000";
-const DB = params.get("db") ?? "poptag-test";
+const LOCAL = params.has("local");
+const HOST =
+  params.get("host") ??
+  (LOCAL
+    ? "ws://localhost:3000"
+    : (import.meta.env.VITE_SPACETIMEDB_HOST ??
+      "https://maincloud.spacetimedb.com"));
+const DB =
+  params.get("db") ??
+  (LOCAL
+    ? "poptag-test"
+    : (import.meta.env.VITE_SPACETIMEDB_DB_NAME ?? "poptag"));
 
 // sessionStorage, not localStorage: each tab gets its own identity (so each
 // tab is a separate player), but a refresh keeps the same one.
@@ -40,7 +52,10 @@ function connect() {
       render();
     })
     .onDisconnect((_ctx, error, nextAttempt, delayMs) => {
-      setStatus(nextAttempt !== undefined ? "reconnecting…" : "disconnected", false);
+      setStatus(
+        nextAttempt !== undefined ? "reconnecting…" : "disconnected",
+        false,
+      );
       log(
         nextAttempt !== undefined
           ? `disconnected, retry ${nextAttempt} in ${delayMs} ms`
@@ -88,13 +103,14 @@ function connect() {
 
 // Call a reducer and log the outcome (reducer errors come back as rejections).
 function call(name: string, fn: (c: DbConnection) => Promise<void>) {
-  if (!conn || !conn.isActive) {
+  if (!conn?.isActive) {
     log(`${name}: not connected`, "err");
     return;
   }
   fn(conn).then(
     () => log(`${name}: ok`, "ok"),
-    (e: unknown) => log(`${name}: ${e instanceof Error ? e.message : e}`, "err"),
+    (e: unknown) =>
+      log(`${name}: ${e instanceof Error ? e.message : e}`, "err"),
   );
 }
 
@@ -164,7 +180,10 @@ function render() {
         const tr = document.createElement("tr");
         if (isMe(p.id)) tr.className = "me";
         tr.append(
-          td((nameOf.get(p.id.toHexString()) ?? short(p.id)) + (isMe(p.id) ? " (you)" : "")),
+          td(
+            (nameOf.get(p.id.toHexString()) ?? short(p.id)) +
+              (isMe(p.id) ? " (you)" : ""),
+          ),
           td(p.x.toFixed(0)),
           td(p.y.toFixed(0)),
         );
@@ -241,13 +260,18 @@ $("join").onclick = () =>
     }),
   );
 
-$("ready").onclick = () => call("toggleReady", (c) => c.reducers.toggleReady({}));
+$("ready").onclick = () =>
+  call("toggleReady", (c) => c.reducers.toggleReady({}));
 $("start").onclick = () => call("startGame", (c) => c.reducers.startGame({}));
 $("leave").onclick = () => call("leaveLobby", (c) => c.reducers.leaveLobby({}));
-$("end").onclick = () => call("endGameEarly", (c) => c.reducers.endGameEarly({}));
+$("end").onclick = () =>
+  call("endGameEarly", (c) => c.reducers.endGameEarly({}));
 $("move").onclick = () =>
   call("movePlayer", (c) =>
-    c.reducers.movePlayer({ x: Math.random() * WORLD, y: Math.random() * WORLD }),
+    c.reducers.movePlayer({
+      x: Math.random() * WORLD,
+      y: Math.random() * WORLD,
+    }),
   );
 
 $("disconnect").onclick = () => {
