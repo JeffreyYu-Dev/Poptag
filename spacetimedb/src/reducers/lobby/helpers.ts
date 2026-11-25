@@ -11,11 +11,6 @@ import { removeFromGame } from "@/reducers/game/helpers";
 
 type Ctx = ReducerCtx<InferSchema<typeof spacetimedb>>;
 
-export const MAX_PLAYERS = 4;
-// How long a player can be disconnected (refresh, network blip) before
-// they are removed from their lobby.
-export const DISCONNECT_GRACE_MICROS = 30_000_000n; // 30 seconds
-
 export function isOnline(ctx: Ctx, id: Identity): boolean {
   for (const _ of ctx.db.activeConnection.identity.filter(id)) return true;
   return false;

@@ -1,6 +1,7 @@
 import { t, SenderError } from "spacetimedb/server";
 import spacetimedb from "@/db/tables";
-import { MIN_PLAYERS_TO_START, WORLD_H, WORLD_W, endGame } from "./helpers";
+import { WORLD_H, WORLD_W, endGame } from "./helpers";
+import { config } from "@/config";
 
 // Host starts a game for their lobby. The lobby stays; its players are
 // copied into game_player for the length of the game.
@@ -19,9 +20,9 @@ export const startGame = spacetimedb.reducer((ctx) => {
   }
 
   const players = [...ctx.db.lobbyPlayer.lobbyId.filter(lobby.code)];
-  if (players.length < MIN_PLAYERS_TO_START) {
+  if (players.length < config.min_players) {
     throw new SenderError(
-      `Need at least ${MIN_PLAYERS_TO_START} players to start`,
+      `Need at least ${config.min_players} players to start`,
     );
   }
   if (players.some((p) => !p.ready)) {

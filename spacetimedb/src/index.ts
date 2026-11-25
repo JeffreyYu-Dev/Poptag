@@ -1,6 +1,7 @@
 import { ScheduleAt } from "spacetimedb";
 import spacetimedb from "@/db/tables";
-import { DISCONNECT_GRACE_MICROS, isOnline } from "@/reducers/lobby/helpers";
+import { isOnline } from "@/reducers/lobby/helpers";
+import { config } from "./config";
 
 // Reducers and views must be exported from the entry file to be registered.
 export * from "@/reducers/lobby";
@@ -43,7 +44,7 @@ export const onDisconnect = spacetimedb.clientDisconnected((ctx) => {
     ctx.db.disconnectTimer.insert({
       scheduledId: 0n,
       scheduledAt: ScheduleAt.time(
-        ctx.timestamp.microsSinceUnixEpoch + DISCONNECT_GRACE_MICROS,
+        ctx.timestamp.microsSinceUnixEpoch + config.disconnect_grace,
       ),
       identity: ctx.sender,
     });

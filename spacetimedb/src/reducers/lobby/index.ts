@@ -1,13 +1,13 @@
 import { t, SenderError } from "spacetimedb/server";
 import spacetimedb, { disconnectTimer } from "@/db/tables";
 import {
-  MAX_PLAYERS,
   isOnline,
   removeFromLobby,
   resetReady,
   upsertPlayer,
   validateUsername,
 } from "./helpers";
+import { config } from "@/config";
 
 export const createLobby = spacetimedb.reducer(
   { username: t.string() },
@@ -59,8 +59,12 @@ export const joinLobby = spacetimedb.reducer(
     if (ctx.db.game.lobbyId.find(code)) {
       throw new SenderError("This lobby is in a game right now");
     }
-    if ([...ctx.db.lobbyPlayer.lobbyId.filter(code)].length >= MAX_PLAYERS) {
-      throw new SenderError(`Lobby is full (max ${MAX_PLAYERS} players)`);
+    if (
+      [...ctx.db.lobbyPlayer.lobbyId.filter(code)].length >= config.max_players
+    ) {
+      throw new SenderError(
+        `Lobby is full (max ${config.max_players} players)`,
+      );
     }
 
     const player = upsertPlayer(ctx, username);

@@ -1,11 +1,13 @@
 import { type InferSchema, type ReducerCtx } from "spacetimedb/server";
 import type { Identity } from "spacetimedb";
 import spacetimedb from "@/db/tables";
+import { config } from "@/config";
 
 // Not exported from the module entry: these are plain helpers, not reducers.
 
 type Ctx = ReducerCtx<InferSchema<typeof spacetimedb>>;
 
+// TODO: FIX TS
 export const MIN_PLAYERS_TO_START = 2;
 
 // Keep in sync with WORLD_W / WORLD_H in src/rectangle_game.ts
@@ -36,5 +38,5 @@ export function removeFromGame(ctx: Ctx, id: Identity) {
   ctx.db.gamePlayer.id.delete(id);
 
   const left = [...ctx.db.gamePlayer.gameId.filter(gp.gameId)].length;
-  if (left < MIN_PLAYERS_TO_START) endGame(ctx, gp.gameId);
+  if (left < config.min_players) endGame(ctx, gp.gameId);
 }

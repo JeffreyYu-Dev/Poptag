@@ -9,7 +9,7 @@
     "skipLibCheck": true,
     "moduleResolution": "bundler",
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
     },
 
     /* The following options are required by SpacetimeDB
@@ -19,7 +19,7 @@
     "lib": ["ES2021", "dom"],
     "module": "ESNext",
     "isolatedModules": true,
-    "noEmit": true
+    "noEmit": true,
   },
-  "include": ["./**/*"]
+  "include": ["./**/*"],
 }
