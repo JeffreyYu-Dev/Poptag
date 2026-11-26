@@ -3,7 +3,8 @@ import Phaser from 'phaser';
 class GameScene extends Phaser.Scene {
     private player!: Phaser.GameObjects.Rectangle;
     private keys!: Record<string, Phaser.Input.Keyboard.Key>;
-    
+    private bombs: Phaser.GameObjects.Arc[] = [];
+
     constructor() {
         super("GameScene");
     }
@@ -42,13 +43,20 @@ class GameScene extends Phaser.Scene {
         const pointer = this.input.activePointer;
         const angle = Phaser.Math.Angle.Between(this.player.x, this.player.y, pointer.worldX, pointer.worldY);
         this.player.setRotation(angle);
-        console.log(angle);
 
         // Place bomb
         if (Phaser.Input.Keyboard.JustDown(this.keys.SPACE)) {
             const bomb = this.add.circle(this.player.x, this.player.y, 10, 0xffffff);
-            this.time.delayedCall(1000, () => {
+            this.time.delayedCall(3000, () => {
+                const explosion = this.add.circle(bomb.x, bomb.y, 20, 0xff0000);
+                const explosion_distance = Phaser.Math.Distance.Between(this.player.x, this.player.y, explosion.x, explosion.y);
+                if (explosion_distance <= explosion.radius) {
+                    console.log("Player hit!");
+                }
                 bomb.destroy();
+                this.time.delayedCall(500, () => {
+                    explosion.destroy();
+                })
             })
         }
     }
