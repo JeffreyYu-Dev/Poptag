@@ -1,9 +1,4 @@
-// Game configuration.
-//
-// SpacetimeDB modules run inside the database's V8 sandbox, not Node: there is
-// no `process.env`, and `.env` files are never loaded at build or publish time.
-// Config must live in code (or in a table if it needs to change without a
-// republish).
+// stuff lives in here
 
 const MIN_PLAYERS = 2;
 const MAX_PLAYERS = 4;

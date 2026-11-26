@@ -12,7 +12,7 @@ export const startGame = spacetimedb.reducer((ctx) => {
   }
 
   const lobby = ctx.db.lobby.code.find(me.lobbyId);
-  if (!lobby || !lobby.host.equals(ctx.sender)) {
+  if (!lobby?.host.equals(ctx.sender)) {
     throw new SenderError("Only the host can start the game");
   }
   if (ctx.db.game.lobbyId.find(lobby.code)) {
@@ -56,7 +56,7 @@ export const endGameEarly = spacetimedb.reducer((ctx) => {
 
   const game = ctx.db.game.id.find(gp.gameId);
   const lobby = game && ctx.db.lobby.code.find(game.lobbyId);
-  if (!lobby || !lobby.host.equals(ctx.sender)) {
+  if (!lobby?.host.equals(ctx.sender)) {
     throw new SenderError("Only the host can end the game");
   }
 
